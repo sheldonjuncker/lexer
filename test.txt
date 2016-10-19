@@ -1,0 +1,4 @@
+class Test : Test
+{
+	public int x = 45;
+}
