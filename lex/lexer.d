@@ -170,6 +170,8 @@ class Lexer
 
 	/**
 	* Reads a string.
+	* Strings support the standard escape sequenes.
+	* And they can span multiple lines.
 	*/
 	void readString()
 	{
@@ -191,10 +193,42 @@ class Lexer
 				throw new FileException("Reached end of file in string.");
 			}
 
-			else
+			//Check for escaping
+			else if(c == '\\')
 			{
-				str ~= cast(char) c;
+				//Consume next character regardless
+				int escaped = consume();
+
+				//Can be anything but EOF
+				if(escaped == EOF)
+				{
+					throw new FileException("Reached end of file in string.");
+				}
+
+				//Check for special escape characters
+				//Note that we're not supporting hex or octal escapes
+				if(escaped == 'n')
+					c = '\n';
+				else if(escaped == 'r')
+					c = '\r';
+				else if(escaped == 't')
+					c = '\t';
+				else if(escaped == 'b')
+					c = '\b';
+				else if(escaped == 'a')
+					c = '\a';
+				else if(escaped == 'v')
+					c = '\v';
+				else if(escaped == 'f')
+					c = '\f';
+				else if(escaped == '0')
+					c = '\0';
+				else
+					c = escaped;
 			}
+
+			//Add the character
+			str ~= cast(char) c;
 		}
 
 		//Consume end quote

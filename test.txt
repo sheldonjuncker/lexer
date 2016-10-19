@@ -1,4 +1,1 @@
-class Test : Test
-{
-	public int x = 45;
-}
+var x = "Hello,\0world!";
