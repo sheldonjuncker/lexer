@@ -413,22 +413,23 @@ class Lexer
 		}
 
 		//Check for exponent
-		if(peek() == 'e' || peek() == 'E' || matches("-e") || matches("+e") || matches("-E") || matches("+E"))
+		if(peek() == 'e' || peek() == 'E')
 		{
 			//Sign and exponent
 			int sign, e;
+			
+			e = consume();
 
 			if(peek() == '-' || peek() == '+')
 				sign = consume();
-
-			e = consume();
-
+			
 			//Check for number
 			if(isNumber(peek()))
 			{
+				num ~= cast(char) e;
 				if(sign)
 					num ~= cast(char) sign;
-				num ~= cast(char) e;
+				
 				while(isNumber(peek()))
 				{
 					num ~= consume();
@@ -438,9 +439,9 @@ class Lexer
 			//Put the -/+ and e/E back
 			else
 			{
-				unread(e);
 				if(sign)
 					unread(sign);
+				unread(e);
 			}
 		}
 
