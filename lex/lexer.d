@@ -482,6 +482,8 @@ class Lexer
 				addStringToken(TokenType.Assign, "=");
 			else if(c == '*')
 				addStringToken(TokenType.Star, "*");
+			else if(c == '^')
+				addStringToken(TokenType.Pow, "^");
 			else if(c == '/')
 				addStringToken(TokenType.Slash, "/");
 			else if(c == '%')

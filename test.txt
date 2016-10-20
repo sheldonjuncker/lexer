@@ -1,1 +1,1 @@
-var x = "Hello,\0world!";
+var x = 3.14 * 10 ^ 3.14;

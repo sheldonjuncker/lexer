@@ -23,6 +23,7 @@ enum TokenType
 	Plus,			//+
 	Minus,			//+
 	Star, 			//+
+	Pow,			//+
 	Slash, 			//+
 	Percent, 		//+
 	Assign,			//+
