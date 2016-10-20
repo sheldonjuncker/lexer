@@ -413,13 +413,21 @@ class Lexer
 		}
 
 		//Check for exponent
-		if(peek() == 'e' || peek() == 'E')
+		if(peek() == 'e' || peek() == 'E' || matches("-e") || matches("+e") || matches("-E") || matches("+E"))
 		{
-			int e = consume();
+			//Sign and exponent
+			int sign, e;
+
+			if(peek() == '-' || peek() == '+')
+				sign = consume();
+
+			e = consume();
 
 			//Check for number
 			if(isNumber(peek()))
 			{
+				if(sign)
+					num ~= cast(char) sign;
 				num ~= cast(char) e;
 				while(isNumber(peek()))
 				{
@@ -427,10 +435,12 @@ class Lexer
 				}
 			}
 
-			//Put the e/E back
+			//Put the -/+ and e/E back
 			else
 			{
 				unread(e);
+				if(sign)
+					unread(sign);
 			}
 		}
 
@@ -534,9 +544,9 @@ class Lexer
 			else if(c == '%')
 				addStringToken(TokenType.Percent, "%");
 			else if(c == '+')
-				addStringToken(TokenType.Minus, "+");
+				addStringToken(TokenType.Plus, "+");
 			else if(c == '-')
-				addStringToken(TokenType.Plus, "-");
+				addStringToken(TokenType.Minus, "-");
 			//Some special stuff for fp numbers like .25
 			else if(c == '.')
 			{
