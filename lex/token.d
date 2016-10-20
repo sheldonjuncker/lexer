@@ -10,8 +10,8 @@ enum TokenType
 	SlComment, 		//+
 	MlComment, 		//+
 	Whitespace, 	//+
-	Double, 		//~
-	Str, 			//~
+	Double, 		//+ (leading +/- signs left to parser)
+	Str, 			//+ (no support for hex/octal escapes)
 	Ident, 			//+
 	If, 			//+
 	Else, 			//+

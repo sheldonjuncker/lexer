@@ -389,6 +389,51 @@ class Lexer
 			num ~= consume();
 		}
 
+		//Check for floating point numbers
+		if(peek() == '.')
+		{
+			consume();
+
+			//Check for numbers
+			if(isNumber(peek()))
+			{
+				num ~= ".";
+				//Read the decimal part
+				while(isNumber(peek))
+				{
+					num ~= consume();
+				}
+			}
+
+			//Unread the .
+			else
+			{
+				unread('.');
+			}
+		}
+
+		//Check for exponent
+		if(peek() == 'e' || peek() == 'E')
+		{
+			int e = consume();
+
+			//Check for number
+			if(isNumber(peek()))
+			{
+				num ~= cast(char) e;
+				while(isNumber(peek()))
+				{
+					num ~= consume();
+				}
+			}
+
+			//Put the e/E back
+			else
+			{
+				unread(e);
+			}
+		}
+
 		//Add token
 		TokenLocation location = new TokenLocation(line, column);
 		addToken(new Token(TokenType.Double, num, location));
@@ -492,8 +537,26 @@ class Lexer
 				addStringToken(TokenType.Minus, "+");
 			else if(c == '-')
 				addStringToken(TokenType.Plus, "-");
+			//Some special stuff for fp numbers like .25
 			else if(c == '.')
-				addStringToken(TokenType.Dot, ".");
+			{
+				consume();
+				//Is it a floating point number?
+				if(isNumber(peek()))
+				{
+					//Put a 0 in front of the . and try again. :)
+					unread('.');
+					unread('0');
+					continue;
+				}
+
+				//Just a .
+				else
+				{
+					unread('.');
+					addStringToken(TokenType.Dot, ".");
+				}
+			}	
 			else if(c == '>')
 				addStringToken(TokenType.Gt, ">");
 			else if(c == '<')
