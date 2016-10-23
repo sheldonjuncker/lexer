@@ -1,5 +1,7 @@
 module lex.lexer;
 import lex.token;
+import core.stdc.limits;
+import std.algorithm;
 import std.stdio;
 import std.file;
 
@@ -25,15 +27,31 @@ class Lexer
 	int column;
 
 	///List of tokens read
-	Token tokens[];
+	Token[] tokens;
+
+	///Unread characters (up to 4 max)
+	int[] lookaheads;
 
 	/**
 	* Reads a character from the file.
 	*/
 	int read()
 	{
-		FILE *fp = this.file.getFP();
-		return getc(fp);
+		//Check lookahead characters
+		if(lookaheads.length)
+		{
+			int c = lookaheads[0];
+			lookaheads = lookaheads[1..$];
+			return c;
+		}
+
+		//Read from file
+		else
+		{
+			FILE *fp = this.file.getFP();
+			int c = getc(fp);
+			return c;
+		}
 	}
 
 	/**
@@ -42,8 +60,15 @@ class Lexer
 	*/
 	void unread(int c)
 	{
-		FILE *fp = this.file.getFP();
-		ungetc(c, fp);
+		if(lookaheads.length == 4)
+		{
+			throw new FileException("Overflowed lookahead buffer!");
+		}
+
+		else
+		{
+			lookaheads = c ~ lookaheads;
+		}
 	}
 
 	/**
@@ -52,9 +77,8 @@ class Lexer
 	*/
 	int peek()
 	{
-		FILE *fp = this.file.getFP();
-		int c = getc(fp);
-		ungetc(c, fp);
+		int c = read();
+		unread(c);
 		return c;
 	}
 
@@ -66,15 +90,25 @@ class Lexer
 	bool matches(string match)
 	{
 		//Read characters to match
-		char buf[] = this.file.rawRead(new char[match.length]);
+		char[] buf;
+
+		for(int i=0; i<match.length; i++)
+		{
+			int c = read();
+			if(c == EOF)
+				break;
+			else
+				buf ~= cast(char) c;
+		}
 		
 		//Perform the match
 		bool test = (match == buf);
 
 		//Unread the characters
-		foreach(char c; buf.reverse)
+		reverse(buf);
+		foreach(char c; buf)
 		{
-			this.unread(c);
+			unread(c);
 		}
 
 		return test;
@@ -342,7 +376,8 @@ class Lexer
 		string ident;
 		
 		//Consume first character
-		ident ~= consume();
+		//Some bug here
+		ident ~= cast(char) consume();
 
 		//Keep consuming while we see an identifier character or number
 		while(isIdent(peek()) || isNumber(peek()))
@@ -595,7 +630,18 @@ class Lexer
 
 			//Error
 			else
+			{
+				//Dumb everything else.
+				while(c != EOF)
+				{
+					writeln(cast(char) c);
+					writeln(c);
+					writeln("---");
+					c = consume();
+				}
 				throw new FileException("Unrecognized character '" ~ cast(char) c ~ "'");
+			}
+			
 		}
 	}
 
