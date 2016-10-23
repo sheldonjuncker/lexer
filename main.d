@@ -16,13 +16,7 @@ int main(string[] argv)
 	l.lex();
 	writeln("Finished lexing:");
 	writeln(sw.peek().nsecs / 1000000000.0);
-	//Print out all tokens
-	/*
-	foreach(Token t; l.tokens)
-	{
-		writeln(std.conv.to!string(t.type) ~ ": " ~ t.lexeme);
-	}
-	*/
+	//lexes a ~5MB file in roughly 8.5 seconds
 
     return 0;
 }
