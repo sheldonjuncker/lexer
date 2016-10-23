@@ -1,4 +1,5 @@
 module lex.token;
+import std.conv;
 
 /**
 * The enum that contains all of the token types.
@@ -72,6 +73,15 @@ class TokenLocation
 	{
 		this.line = line;
 		this.column = column;
+	}
+
+	/**
+	* Converts the token to a string representation.
+	* Used in error messages.
+	*/
+	override string toString()
+	{
+		return "line " ~ to!string(line) ~ ", column " ~ to!string(column);
 	}
 }
 

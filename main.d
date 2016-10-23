@@ -7,7 +7,7 @@ import lex.token;
 int main(string[] argv)
 {
 	//Open a file with the lexer
-	Lexer l = new Lexer("test.txt");
+	Lexer l = new Lexer("code.txt");
 
 	//Lex all input
 	StopWatch sw;

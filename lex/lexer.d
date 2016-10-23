@@ -148,13 +148,13 @@ class Lexer
 	{
 		if(c == '\n')
 		{
-			this.column = 0;
-			this.line++;
+			column = 0;
+			line++;
 		}
 
 		else
 		{
-			this.column++;
+			column++;
 		}
 	}
 
@@ -163,8 +163,8 @@ class Lexer
 	*/
 	int consume()
 	{
-		int c = this.read();
-		this.updateLocation(c);
+		int c = read();
+		updateLocation(c);
 		return c;
 	}
 
@@ -192,12 +192,15 @@ class Lexer
 	*/
 	void addStringToken(TokenType type, string lexeme)
 	{
+		//Get line and column
+		TokenLocation location = new TokenLocation(line, column);
+
 		//Consume entire lexeme
 		for(int i=0; i<lexeme.length; i++)
 			consume();
 
 		//Add token
-		Token token = new Token(type, lexeme, new TokenLocation(line, column));
+		Token token = new Token(type, lexeme, location);
 		addToken(token);
 	}
 
@@ -208,6 +211,9 @@ class Lexer
 	*/
 	void readString()
 	{
+		//Get location
+		TokenLocation location = new TokenLocation(line, column);
+
 		//Consume first quote
 		consume();
 
@@ -223,7 +229,7 @@ class Lexer
 			//Check for EOF
 			if(c == EOF)
 			{
-				throw new FileException("Reached end of file in string.");
+				throw new FileException("Reached end of file in string: started at " ~ location.toString());
 			}
 
 			//Check for escaping
@@ -235,7 +241,7 @@ class Lexer
 				//Can be anything but EOF
 				if(escaped == EOF)
 				{
-					throw new FileException("Reached end of file in string.");
+					throw new FileException("Reached end of file in string: started at " ~ location.toString());
 				}
 
 				//Check for special escape characters
@@ -268,7 +274,6 @@ class Lexer
 		consume();
 
 		//Add string token
-		TokenLocation location = new TokenLocation(line, column);
 		Token token = new Token(TokenType.Str, str, location);
 		addToken(token);
 	}
@@ -278,6 +283,9 @@ class Lexer
 	*/
 	void readChar()
 	{
+		//Get location
+		TokenLocation location = new TokenLocation(line, column);
+
 		//Consume '
 		consume();
 
@@ -287,13 +295,13 @@ class Lexer
 		//Check for empty character
 		if(c == '\'')
 		{
-			throw new FileException("Invalid empty character.");
+			throw new FileException("Invalid empty character literal at " ~ location.toString());
 		}
 
 		//Verify next character is a '
 		if(peek() != '\'')
 		{
-			throw new FileException("Unterminated character literal.");
+			throw new FileException("Unterminated character literal at " ~ location.toString());
 		}
 
 		//Consume the ending '
@@ -302,7 +310,6 @@ class Lexer
 		//Add char token
 		string str;
 		str ~= c;
-		TokenLocation location = new TokenLocation(line, column);
 		Token token = new Token(TokenType.Str, str, location);
 		addToken(token);
 	}
@@ -312,6 +319,9 @@ class Lexer
 	*/
 	void readMlComment()
 	{
+		//Get location
+		TokenLocation location = new TokenLocation(line, column);
+
 		//Consume /*
 		consume(); consume();
 
@@ -322,7 +332,7 @@ class Lexer
 		{
 			if(peek() == EOF)
 			{
-				throw new FileException("Reached end of file in comment.");
+				throw new FileException("Reached end of file in comment begun at " ~ location.toString());
 			}
 
 			else if(matches("*/"))
@@ -344,7 +354,6 @@ class Lexer
 		}
 
 		//Add comment
-		TokenLocation location = new TokenLocation(line, column);
 		addToken(new Token(TokenType.MlComment, "/*...*/", location));
 	}
 
@@ -353,6 +362,9 @@ class Lexer
 	*/
 	void readSlComment()
 	{
+		//Get location
+		TokenLocation location = new TokenLocation(line, column);
+
 		//Consume //
 		consume(); consume();
 
@@ -363,7 +375,6 @@ class Lexer
 		}
 
 		//Add comment
-		TokenLocation location = new TokenLocation(line, column);
 		addToken(new Token(TokenType.SlComment, "//...", location));
 	}
 
@@ -372,6 +383,9 @@ class Lexer
 	*/
 	void readIdent()
 	{
+		//Get location
+		TokenLocation location = new TokenLocation(line, column);
+
 		string ident;
 		
 		//Consume first character
@@ -403,7 +417,6 @@ class Lexer
 			type = TokenType.Return;
 
 		//Add token
-		TokenLocation location = new TokenLocation(line, column);
 		addToken(new Token(type, ident, location));
 	}
 
@@ -412,6 +425,9 @@ class Lexer
 	*/
 	void readNumber()
 	{
+		//Get location
+		TokenLocation location = new TokenLocation(line, column);
+
 		string num;
 		
 		//Consume first character
@@ -426,11 +442,14 @@ class Lexer
 		//Check for floating point numbers
 		if(peek() == '.')
 		{
-			consume();
+			read();
 
 			//Check for numbers
 			if(isNumber(peek()))
 			{
+				//Update location based on the .
+				updateLocation('.');
+
 				num ~= ".";
 				//Read the decimal part
 				while(isNumber(peek))
@@ -452,14 +471,19 @@ class Lexer
 			//Sign and exponent
 			int sign, e;
 			
-			e = consume();
+			e = read();
 
 			if(peek() == '-' || peek() == '+')
-				sign = consume();
+				sign = read();
 			
 			//Check for number
 			if(isNumber(peek()))
 			{
+				//Consume +/- and e/E
+				if(sign)
+					updateLocation(sign);
+				updateLocation(e);
+				
 				num ~= cast(char) e;
 				if(sign)
 					num ~= cast(char) sign;
@@ -480,7 +504,6 @@ class Lexer
 		}
 
 		//Add token
-		TokenLocation location = new TokenLocation(line, column);
 		addToken(new Token(TokenType.Double, num, location));
 	}
 
@@ -489,6 +512,9 @@ class Lexer
 	*/
 	void readWhitespace()
 	{
+		//Get location
+		TokenLocation location = new TokenLocation(line, column);
+
 		//Consume all whitespace
 		while(isWhitespace(peek()))
 		{
@@ -496,8 +522,7 @@ class Lexer
 		}
 
 		//Add token
-		TokenLocation location = new TokenLocation(line, column);
-		addToken(new Token(TokenType.Whitespace, " ", location));		
+		addToken(new Token(TokenType.Whitespace, " ", location));	
 	}
 
 	/**
@@ -582,7 +607,7 @@ class Lexer
 			//Some special stuff for fp numbers like .25
 			else if(c == '.')
 			{
-				consume();
+				read();
 				//Is it a floating point number?
 				if(isNumber(peek()))
 				{
