@@ -30,7 +30,10 @@ class Lexer
 	Token[] tokens;
 
 	///Unread characters (up to 4 max)
-	int[] lookaheads;
+	int[4] buffer;
+
+	//Current position of buffer (cannot exceed 4)
+	int buffer_index;
 
 	/**
 	* Reads a character from the file.
@@ -38,11 +41,9 @@ class Lexer
 	int read()
 	{
 		//Check lookahead characters
-		if(lookaheads.length)
+		if(buffer_index)
 		{
-			int c = lookaheads[0];
-			lookaheads = lookaheads[1..$];
-			return c;
+			return buffer[buffer_index--];
 		}
 
 		//Read from file
@@ -60,14 +61,14 @@ class Lexer
 	*/
 	void unread(int c)
 	{
-		if(lookaheads.length == 4)
+		if(buffer_index == 4)
 		{
 			throw new FileException("Overflowed lookahead buffer!");
 		}
 
 		else
 		{
-			lookaheads = c ~ lookaheads;
+			buffer[++buffer_index] = c;
 		}
 	}
 
@@ -631,14 +632,7 @@ class Lexer
 			//Error
 			else
 			{
-				//Dumb everything else.
-				while(c != EOF)
-				{
-					writeln(cast(char) c);
-					writeln(c);
-					writeln("---");
-					c = consume();
-				}
+				writeln(c);
 				throw new FileException("Unrecognized character '" ~ cast(char) c ~ "'");
 			}
 			
