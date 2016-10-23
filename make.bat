@@ -1,0 +1,1 @@
+rdmd -debug -w -g main.d
