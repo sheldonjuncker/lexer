@@ -42,17 +42,11 @@ class Lexer
 	{
 		//Check lookahead characters
 		if(buffer_index)
-		{
 			return buffer[buffer_index--];
-		}
 
 		//Read from file
 		else
-		{
-			FILE *fp = this.file.getFP();
-			int c = getc(fp);
-			return c;
-		}
+			return getc(this.file.getFP());
 	}
 
 	/**
@@ -62,14 +56,10 @@ class Lexer
 	void unread(int c)
 	{
 		if(buffer_index == 4)
-		{
 			throw new FileException("Overflowed lookahead buffer!");
-		}
 
 		else
-		{
 			buffer[++buffer_index] = c;
-		}
 	}
 
 	/**
@@ -78,15 +68,23 @@ class Lexer
 	*/
 	int peek()
 	{
-		int c = read();
-		unread(c);
-		return c;
+		if(buffer_index)
+			return buffer[buffer_index];
+		
+		else
+		{
+			int c = read();
+			unread(c);
+			return c;
+		}
 	}
 
 	/**
 	* Matches next characters in file against string.
 	* @param match The string to match.
 	* @note Does not change the characters in the file stream.
+	* @note Can be modified to use a fixed array buffer for
+	* optimization.
 	*/
 	bool matches(string match)
 	{
@@ -503,10 +501,6 @@ class Lexer
 	}
 
 	/**
-	* Reads equality operator
-	*/
-
-	/**
 	* Lexes all input.
 	*/
 	void lex()
@@ -549,22 +543,23 @@ class Lexer
 			* Multiple character matches.
 			* Must come before single character operators
 			* to resolve ambiguity.
+			* The first redundant test is for optimization.
 			*/
-			else if(matches("=="))
+			else if(c == '=' && matches("=="))
 				addStringToken(TokenType.Equals, "==");
-			else if(matches("++"))
+			else if(c == '+' && matches("++"))
 				addStringToken(TokenType.Inc, "++");
-			else if(matches("--"))
+			else if(c == '-' && matches("--"))
 				addStringToken(TokenType.Dec, "--");
-			else if(matches(">="))
+			else if(c == '>' && matches(">="))
 				addStringToken(TokenType.Gte, ">=");
-			else if(matches("<="))
+			else if(c == '<' && matches("<="))
 				addStringToken(TokenType.Lte, "<=");
-			else if(matches(".."))
+			else if(c == '.' && matches(".."))
 				addStringToken(TokenType.Range, "..");
-			else if(matches("&&"))
+			else if(c == '&' && matches("&&"))
 				addStringToken(TokenType.And, "&&");
-			else if(matches("||"))
+			else if(c == '|' && matches("||"))
 				addStringToken(TokenType.Or, "||");
 
 			/**
