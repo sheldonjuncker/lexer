@@ -683,6 +683,6 @@ class Lexer
 		if(exists(filename))
 			this.file.open(filename);
 		else
-			throw new FileException("The file could not be opened.");
+			throw new FileException("The file " ~ filename ~ " could not be opened.");
 	}
 }
