@@ -21,10 +21,10 @@ class Lexer
 	bool ignoreComments = true;
 
 	///Current line number
-	int line;
+	int line = 1;
 
 	///Current column
-	int column;
+	int column = 1;
 
 	///List of tokens read
 	Token[] tokens;
@@ -177,7 +177,7 @@ class Lexer
 	{
 		if(c == '\n')
 		{
-			column = 0;
+			column = 1;
 			line++;
 		}
 
