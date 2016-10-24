@@ -141,6 +141,35 @@ class Lexer
 	}
 
 	/**
+	* Replaces an escape character with the corresponding escape.
+	* f('n') = '\n'
+	* @param escape The character to escape.
+	*/
+	int getEscaped(int escape)
+	{
+		//Check for special escape characters
+		//Note that we're not supporting hex or octal escapes
+		if(escape == 'n')
+			return '\n';
+		else if(escape == 'r')
+			return '\r';
+		else if(escape == 't')
+			return '\t';
+		else if(escape == 'b')
+			return '\b';
+		else if(escape == 'a')
+			return '\a';
+		else if(escape == 'v')
+			return '\v';
+		else if(escape == 'f')
+			return '\f';
+		else if(escape == '0')
+			return '\0';
+		else
+			return escape;
+	}
+
+	/**
 	* Updates location information based on character read.
 	* @param c The character read.
 	*/
@@ -243,27 +272,8 @@ class Lexer
 				{
 					throw new FileException("Reached end of file in string: started at " ~ location.toString());
 				}
-
-				//Check for special escape characters
-				//Note that we're not supporting hex or octal escapes
-				if(escaped == 'n')
-					c = '\n';
-				else if(escaped == 'r')
-					c = '\r';
-				else if(escaped == 't')
-					c = '\t';
-				else if(escaped == 'b')
-					c = '\b';
-				else if(escaped == 'a')
-					c = '\a';
-				else if(escaped == 'v')
-					c = '\v';
-				else if(escaped == 'f')
-					c = '\f';
-				else if(escaped == '0')
-					c = '\0';
-				else
-					c = escaped;
+				
+				c = getEscaped(escaped);
 			}
 
 			//Add the character
@@ -296,6 +306,12 @@ class Lexer
 		if(c == '\'')
 		{
 			throw new FileException("Invalid empty character literal at " ~ location.toString());
+		}
+
+		//Escape sequence
+		if(c == '\\')
+		{
+			c = consume();
 		}
 
 		//Verify next character is a '
@@ -655,7 +671,6 @@ class Lexer
 				writeln(c);
 				throw new FileException("Unrecognized character '" ~ cast(char) c ~ "'");
 			}
-			
 		}
 	}
 
