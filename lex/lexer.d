@@ -4,6 +4,7 @@ import core.stdc.limits;
 import std.algorithm;
 import std.stdio;
 import std.file;
+import std.path;
 
 /**
 * The lexer class.
@@ -34,6 +35,15 @@ class Lexer
 
 	//Current position of buffer (cannot exceed 4)
 	int buffer_index;
+
+	/**
+	* Gets absolute name of file opened.
+	* test.txt => C:\D\projects\lexer\test.txt
+	*/
+	string getFileName()
+	{
+		return absolutePath(file.name());
+	}
 
 	/**
 	* Reads a character from the file.
@@ -222,7 +232,7 @@ class Lexer
 	void addStringToken(TokenType type, string lexeme)
 	{
 		//Get line and column
-		TokenLocation location = new TokenLocation(line, column);
+		TokenLocation location = new TokenLocation(line, column, getFileName());
 
 		//Consume entire lexeme
 		for(int i=0; i<lexeme.length; i++)
@@ -241,7 +251,7 @@ class Lexer
 	void readString()
 	{
 		//Get location
-		TokenLocation location = new TokenLocation(line, column);
+		TokenLocation location = new TokenLocation(line, column, getFileName());
 
 		//Consume first quote
 		consume();
@@ -294,7 +304,7 @@ class Lexer
 	void readChar()
 	{
 		//Get location
-		TokenLocation location = new TokenLocation(line, column);
+		TokenLocation location = new TokenLocation(line, column, getFileName());
 
 		//Consume '
 		consume();
@@ -336,7 +346,7 @@ class Lexer
 	void readMlComment()
 	{
 		//Get location
-		TokenLocation location = new TokenLocation(line, column);
+		TokenLocation location = new TokenLocation(line, column, getFileName());
 
 		//Consume /*
 		consume(); consume();
@@ -379,7 +389,7 @@ class Lexer
 	void readSlComment()
 	{
 		//Get location
-		TokenLocation location = new TokenLocation(line, column);
+		TokenLocation location = new TokenLocation(line, column, getFileName());
 
 		//Consume //
 		consume(); consume();
@@ -400,7 +410,7 @@ class Lexer
 	void readIdent()
 	{
 		//Get location
-		TokenLocation location = new TokenLocation(line, column);
+		TokenLocation location = new TokenLocation(line, column, getFileName());
 
 		string ident;
 		
@@ -442,7 +452,7 @@ class Lexer
 	void readNumber()
 	{
 		//Get location
-		TokenLocation location = new TokenLocation(line, column);
+		TokenLocation location = new TokenLocation(line, column, getFileName());
 
 		string num;
 		
@@ -529,7 +539,7 @@ class Lexer
 	void readWhitespace()
 	{
 		//Get location
-		TokenLocation location = new TokenLocation(line, column);
+		TokenLocation location = new TokenLocation(line, column, getFileName());
 
 		//Consume all whitespace
 		while(isWhitespace(peek()))
@@ -539,6 +549,15 @@ class Lexer
 
 		//Add token
 		addToken(new Token(TokenType.Whitespace, " ", location));	
+	}
+
+	/**
+	* Determines if lexing was successful.
+	*/
+	bool lexSuccess()
+	{
+		//Return true if entire file was read
+		return peek() == EOF;
 	}
 
 	/**
@@ -672,6 +691,9 @@ class Lexer
 				throw new FileException("Unrecognized character '" ~ cast(char) c ~ "'");
 			}
 		}
+
+		//Add EOF token
+		addToken(new Token(TokenType.Eof, "end of file", new TokenLocation(line, column, getFileName())));
 	}
 
 	/**

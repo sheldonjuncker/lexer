@@ -5,6 +5,7 @@ import std.conv;
 * The enum that contains all of the token types.
 * + = complete lexer support
 * ~ = partial lexer support
+* - = no lexer support
 */
 enum TokenType
 {
@@ -38,6 +39,7 @@ enum TokenType
 	Lte, 			//+
 	And, 			//+
 	Or, 			//+
+	Xor,			//-
 	Dot, 			//+
 	Comma,			//+
 	Lprn,			//+
@@ -49,7 +51,7 @@ enum TokenType
 	Range,			//+
 	Colon,			//+
 	Semi,			//+
-	Eof				//Do we need this?
+	Eof				//+
 }
 
 /**
@@ -58,19 +60,23 @@ enum TokenType
 */
 class TokenLocation
 {
+	///The file
+	string file;
+
 	///The line number
-	public int line;
+	int line;
 
 	///The column number
-	public int column;
+	int column;
 
 	/**
 	* Constructor.
 	* @paran line The line number.
 	* @param column The column number.
 	*/
-	this(int line, int column)
+	this(int line, int column, string file="")
 	{
+		this.file = file;
 		this.line = line;
 		this.column = column;
 	}
