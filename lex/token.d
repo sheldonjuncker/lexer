@@ -87,7 +87,7 @@ class TokenLocation
 	*/
 	override string toString()
 	{
-		return "line " ~ to!string(line) ~ ", column " ~ to!string(column);
+		return "file " ~ to!string(file) ~ ", line " ~ to!string(line) ~ ", column " ~ to!string(column);
 	}
 }
 
