@@ -1,4 +1,4 @@
-module lex.token;
+module lexer.token;
 import std.conv;
 
 /**

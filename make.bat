@@ -1,1 +1,1 @@
-rdmd -debug -w -g main.d
+rdmd -debug -w -g -I/d/projects main.d

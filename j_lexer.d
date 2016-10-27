@@ -1,5 +1,5 @@
-module lex.lexer;
-import lex.token;
+module lexer.j_lexer;
+import lexer.token;
 import core.stdc.limits;
 import std.algorithm;
 import std.stdio;

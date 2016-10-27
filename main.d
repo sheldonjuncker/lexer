@@ -1,8 +1,8 @@
 import std.stdio;
 import std.conv;
 import std.datetime;
-import lex.lexer;
-import lex.token;
+import lexer.j_lexer;
+import lexer.token;
 
 int main(string[] argv)
 {
