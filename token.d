@@ -9,13 +9,13 @@ import std.conv;
 */
 enum TokenType
 {
-	SlComment, 		//+
-	MlComment, 		//+
-	Whitespace, 	//+
-	Double, 		//+ (leading +/- signs left to parser)
-	Str, 			//+ (no support for hex/octal escapes)
+	SlComment,		//+
+	MlComment,		//+
+	Whitespace,		//+
+	Double,			//+ (leading +/- signs left to parser)
+	Str,			//+ (no support for hex/octal escapes)
 	Ident, 			//+
-	Var				//+
+	Var,			//+
 	If, 			//+
 	Else, 			//+
 	While, 			//+
