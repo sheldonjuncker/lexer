@@ -15,6 +15,7 @@ enum TokenType
 	Double, 		//+ (leading +/- signs left to parser)
 	Str, 			//+ (no support for hex/octal escapes)
 	Ident, 			//+
+	Var				//+
 	If, 			//+
 	Else, 			//+
 	While, 			//+

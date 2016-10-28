@@ -441,6 +441,8 @@ class Lexer
 			type = TokenType.Class;
 		else if(ident == "return")
 			type = TokenType.Return;
+		else if(ident == "var")
+			type = TokenType.Var;
 
 		//Add token
 		addToken(new Token(type, ident, location));
